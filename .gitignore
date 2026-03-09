@@ -1,0 +1,14 @@
+node_modules/
+allure-results/
+allure-report/
+playwright-report/
+test-results/
+screenshots/
+snapshots/
+.env
+.env.*
+!.env
+storage.json
+
+# Project exclude paths
+/src/data/constants.js

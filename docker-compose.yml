@@ -1,0 +1,9 @@
+services:
+  playwright:
+    build: .
+    environment:
+      - HEADLESS=true
+    volumes:
+      - ./snapshots:/app/snapshots
+      - ./allure-results:/app/allure-results
+      - ./test-results:/app/test-results

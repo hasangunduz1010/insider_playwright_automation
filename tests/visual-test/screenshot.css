@@ -1,0 +1,45 @@
+input,
+[data-testid="interest"],
+[data-testid="monthly"],
+[data-testid="total"] {
+    color: transparent;
+}
+
+[data-testid=slider-controls-btn],
+.keen-slider__slide img,
+[id*=vl-sponsor-banner],
+[data-testid=price-wrapper],
+[data-testid="symbol-cp"],
+[data-testid=symbol-low],
+[data-testid=symbol-high],
+[data-testid=symbol-daily-change] span,
+[data-testid=symbol-change-percent] span,
+[data-testid=symbol-update-date],
+[data-testid="symbol-closeformatted"],
+[data-testid=stock-daily-cp],
+[data-testid=stock-date],
+[data-testid=parity-band-last],
+[data-testid=parity-band-cp],
+[data-testid=info-link-update-time] span,
+[data-testid=info-link-name],
+[data-testid=info-link-description] p,
+[data-testid=price-text],
+[data-testid="keys-currencys"],
+[data-testid="keys-percent"],
+[data-testid="definition-date"],
+[data-testid="daily-ca"],
+[data-testid="daily-cp"],
+[data-testid="interest-amount"],
+[data-testid="howmuch-amount"],
+[data-testid="close-formatted"],
+[data-testid="cumulative-ca-formatted"],
+[data-testid="cumulative-cp-formatted"],
+#navigation {
+    visibility: hidden;
+}
+
+.cli-bar-container,
+#cookie-law-info-bar,
+.wt-cli-cookie-bar-container {
+    display: none;
+}

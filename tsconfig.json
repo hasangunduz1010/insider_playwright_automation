@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@core/*": ["src/core/*"],
+      "@api/*": ["src/api/*"],
+      "@pages/*": ["src/pages/*"],
+      "@data/*": ["src/data/*"],
+      "@mock/*": ["src/mock/*"],
+      "@enums/*": ["src/enums/*"]
+    },
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
+}
