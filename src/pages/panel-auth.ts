@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
 import LoginPage from './login.page';
 import { PartnerSelectPage } from './partner-select.page';
-import { TIMEOUTS, URL_PATTERNS } from '@data/constants';
+import { TIMEOUTS, URL_PATTERNS } from '../../tests/visual-test/data/constants';
 
 export class PanelAuth {
     private readonly loginPage: LoginPage;

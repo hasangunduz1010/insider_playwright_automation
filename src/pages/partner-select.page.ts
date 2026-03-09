@@ -1,5 +1,5 @@
 import { Page, expect } from '@playwright/test';
-import { SELECTORS, TIMEOUTS, URL_PATTERNS } from '@data/constants';
+import { SELECTORS, TIMEOUTS, URL_PATTERNS } from '../../tests/visual-test/data/constants';
 
 export class PartnerSelectPage {
     constructor(private readonly page: Page) {}

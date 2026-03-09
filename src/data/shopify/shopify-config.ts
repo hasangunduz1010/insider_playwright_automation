@@ -1,6 +1,6 @@
-import { Environment } from './Environments';
-import { SettingKeys } from './SettingKeys';
-import { Settings } from './Settings';
+import { Environment } from './environments';
+import { SettingKeys } from './setting-keys';
+import { Settings } from './settings';
 
 // ─── ShopifyStoreInfo ─────────────────────────────────────────────────────────
 
@@ -9,7 +9,7 @@ export interface ShopifyStoreInfo {
   partner: string;
   locale: string;
   currency: string;
-  tokenKey: string;         // SettingKeys value used to fetch the token
+  tokenKey: string;
   apiVersion: string;
 }
 
@@ -106,27 +106,19 @@ export interface ResolvedStoreConfig {
 }
 
 export class ShopifyStoreConfig {
-  /**
-   * Returns the right store based on the current environment.
-   * Mirrors Python's ShopifyStoreConfig.get_store_for_environment().
-   */
   static getStoreForEnvironment(environment: Environment): ShopifyStoreInfo {
     const prodEnvs: Environment[] = [
       Environment.JENKINS_TEST,
       Environment.JENKINS_DEPLOYMENT,
       Environment.JENKINS_DEPLOYMENT_WINDOWS,
     ];
-    return prodEnvs.includes(environment)
-      ? ShopifyStores.PROD_LIVE_SYNC
-      : ShopifyStores.STORE_1;
+    return prodEnvs.includes(environment) ? ShopifyStores.PROD_LIVE_SYNC : ShopifyStores.STORE_1;
   }
 
-  /** Fetches token from environment variables for a given store. */
   static getToken(settings: Settings, store: ShopifyStoreInfo): string {
     return settings.get(store.tokenKey as any);
   }
 
-  /** Returns the full resolved config for a store (includes the token). */
   static getStoreConfig(settings: Settings, store: ShopifyStoreInfo): ResolvedStoreConfig {
     return {
       shopUrl: store.shopUrl,
@@ -138,11 +130,6 @@ export class ShopifyStoreConfig {
     };
   }
 
-  /**
-   * Auto-selects the correct store for the current environment and
-   * returns the fully resolved config.
-   * Mirrors Python's ShopifyStoreConfig.setup_test_store_config().
-   */
   static resolveConfig(settings: Settings, store?: ShopifyStoreInfo): ResolvedStoreConfig {
     const resolvedStore = store ?? ShopifyStoreConfig.getStoreForEnvironment(settings.env);
     return ShopifyStoreConfig.getStoreConfig(settings, resolvedStore);

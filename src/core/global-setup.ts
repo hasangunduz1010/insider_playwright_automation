@@ -1,7 +1,7 @@
 import {chromium, FullConfig} from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-import {URLS, SELECTORS, CREDENTIALS, TIMEOUTS, URL_PATTERNS} from '@data/constants';
+import {URLS, SELECTORS, CREDENTIALS, TIMEOUTS, URL_PATTERNS} from '../../tests/visual-test/data/constants';
 
 /**
  * Global setup function that runs before all tests.

@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
-import { Environment } from './Environments';
-import { SettingKey } from './SettingKeys';
+import { Environment } from './environments';
+import { SettingKey } from './setting-keys';
 
 dotenv.config();
 
@@ -31,13 +31,10 @@ export class Settings {
   }
 
   get(key: SettingKey): string {
-    // env var name is the key uppercased
     const envKey = key.toUpperCase();
     const value = process.env[envKey];
     if (value === undefined) {
-      throw new Error(
-        `Missing required env variable: ${envKey}. Add it to your .env file.`,
-      );
+      throw new Error(`Missing required env variable: ${envKey}. Add it to your .env file.`);
     }
     return value;
   }
@@ -47,15 +44,11 @@ export class Settings {
   }
 
   /**
-   * Mirrors Python's Settings.get_domain().
    * Production / Jenkins → useinsider.com
    * Everything else      → insidethekube.com
    */
   getDomain(): string {
-    const prodEnvs: Environment[] = [
-      Environment.PROD_KUBE,
-      Environment.JENKINS_TEST,
-    ];
+    const prodEnvs: Environment[] = [Environment.PROD_KUBE, Environment.JENKINS_TEST];
     return prodEnvs.includes(this.env) ? 'useinsider.com' : 'insidethekube.com';
   }
 }
