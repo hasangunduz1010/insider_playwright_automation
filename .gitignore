@@ -12,4 +12,4 @@ storage.json
 .vscode/
 
 .claude/settings.local.json
-.env
+#.env
