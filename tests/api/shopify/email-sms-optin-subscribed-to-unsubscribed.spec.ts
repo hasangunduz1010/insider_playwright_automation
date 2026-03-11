@@ -1,9 +1,8 @@
 import { test, expect } from '@core/fixture.base';
 import ShopifyService from '@api/shopify.service';
 import UcdService from '@api/ucd.service';
-import { Settings } from '@data/shopify/settings';
+import { ShopifyEnv } from '@data/shopify/shopify-env';
 import { ShopifyStoreConfig, ShopifyStores } from '@data/shopify/shopify-config';
-import { SettingKeys } from '@data/shopify/setting-keys';
 import { EmailState, SmsState, UcdExpected, UcdIdentifier, UcdRequiredFields } from './shopify.data';
 
 /**
@@ -23,17 +22,14 @@ test.use({
   story: 'Email + SMS Optin: Subscribed → Unsubscribed',
 });
 
+// UCD sync requires ~2-3 min: 60s initial wait + exponential backoff retries
+test.setTimeout(10 * 60 * 1000);
+
 test('Email + SMS opt-in transitions from subscribed to unsubscribed', async ({ request }) => {
-  const settings = new Settings();
-  const config = ShopifyStoreConfig.resolveConfig(settings, ShopifyStores.PROD_LIVE_SYNC);
+  const config = ShopifyStoreConfig.resolveConfig(ShopifyStores.PROD_LIVE_SYNC);
 
   const shopify = new ShopifyService(request, config.shopUrl, config.apiVersion, config.token);
-  const ucd = new UcdService(
-    request,
-    config.partner,
-    settings.getDomain(),
-    settings.get(SettingKeys.UCD_API_KEY),
-  );
+  const ucd = new UcdService(request, config.partner, ShopifyEnv.UCD_DOMAIN, ShopifyEnv.UCD_API_KEY);
 
   let customerId: number | undefined;
 
@@ -47,19 +43,18 @@ test('Email + SMS opt-in transitions from subscribed to unsubscribed', async ({ 
       requiredFields: [...UcdRequiredFields.EMAIL_SMS],
     });
 
-    expect(customerId).toBe(parseInt(initialUcdData.c_shopify_id, 10));
-    expect(await shopify.getSmsConsentState(customerId)).toBe(initialUcdData.so);
+    expect(customerId, 'customerId should match UCD c_shopify_id').toBe(parseInt(initialUcdData.c_shopify_id, 10));
+    expect(await shopify.getSmsConsentState(customerId), 'Shopify SMS consent state should match UCD so').toBe(initialUcdData.so);
 
     // ── Step 2: Update both email and SMS consent to unsubscribed ─────────────
-    await ucd.waitForSync(60_000);
     const updatedCustomer = await shopify.updateOptin(
       customerId,
       EmailState.UNSUBSCRIBED,
       SmsState.UNSUBSCRIBED,
     );
 
-    expect(updatedCustomer.email_marketing_consent?.state).toBe(EmailState.UNSUBSCRIBED);
-    expect(updatedCustomer.sms_marketing_consent?.state).toBe(SmsState.UNSUBSCRIBED);
+    expect(updatedCustomer.email_marketing_consent?.state, 'Shopify email consent should be unsubscribed').toBe(EmailState.UNSUBSCRIBED);
+    expect(updatedCustomer.sms_marketing_consent?.state, 'Shopify SMS consent should be unsubscribed').toBe(SmsState.UNSUBSCRIBED);
 
     // ── Step 3: Verify unsubscribed state for both channels in UCD ────────────
     const { ucdData: updatedUcdData } = await ucd.waitForStateUpdate(email, {
@@ -67,8 +62,8 @@ test('Email + SMS opt-in transitions from subscribed to unsubscribed', async ({ 
       identifierValue: email,
     });
 
-    expect(updatedUcdData.so).toBe(false);
-    expect(updatedUcdData.eo).toBe(false);
+    expect(updatedUcdData.so, 'UCD so should be false — SMS unsubscribed').toBe(false);
+    expect(updatedUcdData.eo, 'UCD eo should be false — email unsubscribed').toBe(false);
   } finally {
     // ── Cleanup: always delete the created customer ───────────────────────────
     if (customerId !== undefined) {

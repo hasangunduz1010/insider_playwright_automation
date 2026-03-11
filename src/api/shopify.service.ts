@@ -1,4 +1,4 @@
-import { APIRequestContext } from '@playwright/test';
+import { APIRequestContext, expect } from '@playwright/test';
 import BaseService from '@core/base.service';
 import { Step } from '@core/base.page';
 
@@ -23,6 +23,8 @@ export interface ShopifyCustomer {
 
 const COUNTRY_CODES = ['GB', 'TR', 'CA'] as const;
 const COUNTRY_PREFIXES: Record<string, string> = { GB: '+44', TR: '+90', CA: '+1' };
+// First digit per country: GB mobile=7, TR mobile=5, CA valid area=4
+const COUNTRY_FIRST_DIGIT: Record<string, string> = { GB: '7', TR: '5', CA: '4' };
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 
@@ -67,6 +69,8 @@ export default class ShopifyService extends BaseService {
       data: payload,
     });
     const body = await response.json();
+    expect(response.ok(), `Shopify createCustomer failed [${response.status()}]: ${JSON.stringify(body)}`).toBeTruthy();
+    expect(body.customer, `Shopify response missing 'customer': ${JSON.stringify(body)}`).toBeDefined();
     return body.customer as ShopifyCustomer;
   }
 
@@ -91,6 +95,7 @@ export default class ShopifyService extends BaseService {
         headers: this.shopifyHeaders,
         data: payload,
       });
+      expect(response.ok(), `Shopify updateOptin failed [${response.status()}]`).toBeTruthy();
       const body = await response.json();
       const customerData = body.customer as ShopifyCustomer;
       if (customerData?.sms_marketing_consent?.state === smsMarketingState) {
@@ -109,12 +114,14 @@ export default class ShopifyService extends BaseService {
     const response = await this.context.get(`${this.storeBaseUrl}/${customerId}.json`, {
       headers: this.shopifyHeaders,
     });
+    expect(response.ok(), `Shopify getSmsConsentState failed [${response.status()}]`).toBeTruthy();
     const body = await response.json();
     const customerData = body.customer as ShopifyCustomer;
 
-    if (!customerData || !('sms_marketing_consent' in customerData)) {
-      throw new Error("'sms_marketing_consent' field not found for the customer.");
-    }
+    expect(
+      customerData && 'sms_marketing_consent' in customerData,
+      `'sms_marketing_consent' field not found for customer ${customerId}`,
+    ).toBeTruthy();
     if (customerData.sms_marketing_consent === null) return null;
 
     const state = customerData.sms_marketing_consent?.state;
@@ -143,10 +150,13 @@ export default class ShopifyService extends BaseService {
   }
 
   private generateUniquePhone(): string {
-    const code = COUNTRY_CODES[Math.floor(Math.random() * COUNTRY_CODES.length)];
-    const prefix = COUNTRY_PREFIXES[code];
-    const number = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10)).join('');
-    return `${prefix}${number}`;
+    const prefix = '+90';
+    const validTrPrefixes = ['532', '533', '542', '505', '555', '530'];
+    const selectedPrefix = validTrPrefixes[Math.floor(Math.random() * validTrPrefixes.length)];
+    const rest = Array.from({ length: 7 }, () => Math.floor(Math.random() * 10)).join('');
+    const finalPhone = `${prefix}${selectedPrefix}${rest}`;
+    console.log(`[ShopifyService] Generated Valid Phone: ${finalPhone}`);
+    return finalPhone;
   }
 
   private sleep(ms: number): Promise<void> {
