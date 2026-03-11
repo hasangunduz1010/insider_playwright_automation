@@ -1,8 +1,8 @@
 import BasePage, { Step } from '@core/base.page';
 import { expect, Locator, Page } from '@playwright/test';
-import { URLS, SELECTORS, TIMEOUTS } from '../../tests/visual-test/data/constants';
+import { URLS, SELECTORS, TIMEOUTS } from '@data/visual/constants';
 
-export default class LoginPage extends BasePage {
+export default class PanelLoginPage extends BasePage {
     readonly emailInput: Locator;
     readonly passwordInput: Locator;
     readonly loginButton: Locator;

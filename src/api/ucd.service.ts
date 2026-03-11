@@ -128,7 +128,7 @@ export default class UcdService extends BaseService {
 
   /**
    * Polls UCD until SMS / email / opt-out fields match expected values.
-   * Exponential back-off between retries.
+   * Linear polling with an optional initial wait before first check.
    */
   @Step('Wait for UCD state update')
   async waitForStateUpdate(
@@ -142,6 +142,7 @@ export default class UcdService extends BaseService {
       smsOptOutExpectedValue?: boolean;
       maxRetries?: number;
       pollingIntervalMs?: number;
+      initialWaitMs?: number;
     } = {},
   ): Promise<FetchUcdResult> {
     const {
@@ -151,9 +152,12 @@ export default class UcdService extends BaseService {
       smsExpectedValue,
       globUnsubExpectedValue,
       smsOptOutExpectedValue,
-      maxRetries = 8,
-      pollingIntervalMs = 10_000,
+      maxRetries = 12,
+      pollingIntervalMs = 15_000,
+      initialWaitMs = 30_000,
     } = options;
+
+    await this.sleep(initialWaitMs);
 
     const lookupValue = identifierValue ?? email;
     if (!lookupValue) throw new Error('Identifier value is required.');
@@ -183,8 +187,7 @@ export default class UcdService extends BaseService {
       }
 
       if (attempt < maxRetries) {
-        const waitMs = pollingIntervalMs * Math.pow(2, attempt - 1);
-        await this.sleep(waitMs);
+        await this.sleep(pollingIntervalMs);
       }
     }
 

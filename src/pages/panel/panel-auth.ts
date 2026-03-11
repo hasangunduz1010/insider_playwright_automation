@@ -1,14 +1,14 @@
 import { Page } from '@playwright/test';
-import LoginPage from './login.page';
+import PanelLoginPage from './panel-login.page';
 import { PartnerSelectPage } from './partner-select.page';
-import { TIMEOUTS, URL_PATTERNS } from '../../tests/visual-test/data/constants';
+import { TIMEOUTS, URL_PATTERNS } from '@data/visual/constants';
 
 export class PanelAuth {
-    private readonly loginPage: LoginPage;
+    private readonly loginPage: PanelLoginPage;
     private readonly partnerSelectPage: PartnerSelectPage;
 
     constructor(private readonly page: Page, private readonly isMobile: boolean = false) {
-        this.loginPage = new LoginPage(page, isMobile);
+        this.loginPage = new PanelLoginPage(page, isMobile);
         this.partnerSelectPage = new PartnerSelectPage(page);
     }
 

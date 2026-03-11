@@ -1,6 +1,4 @@
-import { Environment } from './environments';
-import { SettingKeys } from './setting-keys';
-import { Settings } from './settings';
+import { ShopifyEnv } from './shopify-env';
 
 // ─── ShopifyStoreInfo ─────────────────────────────────────────────────────────
 
@@ -9,7 +7,7 @@ export interface ShopifyStoreInfo {
   partner: string;
   locale: string;
   currency: string;
-  tokenKey: string;
+  tokenKey: keyof typeof ShopifyEnv;
   apiVersion: string;
 }
 
@@ -21,7 +19,7 @@ export const ShopifyStores = {
     partner: 'krakentest',
     locale: 'en_US:36206313714',
     currency: 'USD',
-    tokenKey: SettingKeys.SHOPIFY_STORE_1_TOKEN,
+    tokenKey: 'SHOPIFY_STORE_1_TOKEN',
     apiVersion: '2026-01',
   },
   STORE_2: {
@@ -29,7 +27,7 @@ export const ShopifyStores = {
     partner: 'shopbagg',
     locale: 'en_US:37539774720',
     currency: 'USD',
-    tokenKey: SettingKeys.SHOPIFY_STORE_2_TOKEN,
+    tokenKey: 'SHOPIFY_STORE_2_TOKEN',
     apiVersion: '2026-01',
   },
   STORE_3: {
@@ -37,7 +35,7 @@ export const ShopifyStores = {
     partner: 'inshoppingcart',
     locale: 'en_US:37907398715',
     currency: 'USD',
-    tokenKey: SettingKeys.SHOPIFY_STORE_3_TOKEN,
+    tokenKey: 'SHOPIFY_STORE_3_TOKEN',
     apiVersion: '2026-01',
   },
   STORE_4: {
@@ -45,7 +43,7 @@ export const ShopifyStores = {
     partner: 'insdevkraken1',
     locale: 'en_US:43930452153',
     currency: 'TRY',
-    tokenKey: SettingKeys.SHOPIFY_STORE_4_TOKEN,
+    tokenKey: 'SHOPIFY_STORE_4_TOKEN',
     apiVersion: '2026-01',
   },
   STORE_5: {
@@ -53,7 +51,7 @@ export const ShopifyStores = {
     partner: 'shopbagg',
     locale: 'en_US:40112947391',
     currency: 'EUR',
-    tokenKey: SettingKeys.SHOPIFY_STORE_5_TOKEN,
+    tokenKey: 'SHOPIFY_STORE_5_TOKEN',
     apiVersion: '2026-01',
   },
   STORE_6: {
@@ -61,7 +59,7 @@ export const ShopifyStores = {
     partner: 'insdevkraken2',
     locale: 'en_US:36387225818',
     currency: 'AED',
-    tokenKey: SettingKeys.SHOPIFY_STORE_6_TOKEN,
+    tokenKey: 'SHOPIFY_STORE_6_TOKEN',
     apiVersion: '2026-01',
   },
   /** Production / Jenkins — Live Sync Automation */
@@ -70,7 +68,7 @@ export const ShopifyStores = {
     partner: 'shopifytest',
     locale: 'es_ES',
     currency: 'SGD',
-    tokenKey: SettingKeys.PROD_SHOPIFY_LIVE_SYNC_TOKEN,
+    tokenKey: 'PROD_SHOPIFY_LIVE_SYNC_TOKEN',
     apiVersion: '2026-01',
   },
   /** Production / Jenkins — Historical Sync Automation */
@@ -79,7 +77,7 @@ export const ShopifyStores = {
     partner: 'insdevautomation',
     locale: 'fi_FI',
     currency: 'USD',
-    tokenKey: SettingKeys.SHOPIFY_AUTOMATION_STORE_TOKEN,
+    tokenKey: 'SHOPIFY_AUTOMATION_STORE_TOKEN',
     apiVersion: '2026-01',
   },
   MARKET_SYNC: {
@@ -87,14 +85,14 @@ export const ShopifyStores = {
     partner: 'insdevmedusa1',
     locale: 'en_US',
     currency: 'USD',
-    tokenKey: SettingKeys.INSDEV_MARKET_AUTOMATION_TOKEN,
+    tokenKey: 'INSDEV_MARKET_AUTOMATION_TOKEN',
     apiVersion: '2026-01',
   },
 } as const satisfies Record<string, ShopifyStoreInfo>;
 
 export type ShopifyStoreKey = keyof typeof ShopifyStores;
 
-// ─── ShopifyStoreConfig ───────────────────────────────────────────────────────
+// ─── ResolvedStoreConfig ──────────────────────────────────────────────────────
 
 export interface ResolvedStoreConfig {
   shopUrl: string;
@@ -105,33 +103,29 @@ export interface ResolvedStoreConfig {
   apiVersion: string;
 }
 
+// ─── ShopifyStoreConfig ───────────────────────────────────────────────────────
+
+const ENV_STORE_MAP: Record<string, ShopifyStoreInfo> = {
+  prod:    ShopifyStores.PROD_LIVE_SYNC,
+  preprod: ShopifyStores.PROD_HISTORICAL_SYNC,
+  staging: ShopifyStores.STORE_1,
+};
+
 export class ShopifyStoreConfig {
-  static getStoreForEnvironment(environment: Environment): ShopifyStoreInfo {
-    const prodEnvs: Environment[] = [
-      Environment.JENKINS_TEST,
-      Environment.JENKINS_DEPLOYMENT,
-      Environment.JENKINS_DEPLOYMENT_WINDOWS,
-    ];
-    return prodEnvs.includes(environment) ? ShopifyStores.PROD_LIVE_SYNC : ShopifyStores.STORE_1;
+  /** Returns the default store for the current ENV, or falls back to PROD_LIVE_SYNC. */
+  static defaultStore(): ShopifyStoreInfo {
+    const env = process.env['ENV'] ?? 'prod';
+    return ENV_STORE_MAP[env] ?? ShopifyStores.PROD_LIVE_SYNC;
   }
 
-  static getToken(settings: Settings, store: ShopifyStoreInfo): string {
-    return settings.get(store.tokenKey as any);
-  }
-
-  static getStoreConfig(settings: Settings, store: ShopifyStoreInfo): ResolvedStoreConfig {
+  static resolveConfig(store: ShopifyStoreInfo = ShopifyStoreConfig.defaultStore()): ResolvedStoreConfig {
     return {
       shopUrl: store.shopUrl,
-      token: ShopifyStoreConfig.getToken(settings, store),
+      token: ShopifyEnv[store.tokenKey] as string,
       partner: store.partner,
       locale: store.locale,
       currency: store.currency,
       apiVersion: store.apiVersion,
     };
-  }
-
-  static resolveConfig(settings: Settings, store?: ShopifyStoreInfo): ResolvedStoreConfig {
-    const resolvedStore = store ?? ShopifyStoreConfig.getStoreForEnvironment(settings.env);
-    return ShopifyStoreConfig.getStoreConfig(settings, resolvedStore);
   }
 }
