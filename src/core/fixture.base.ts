@@ -14,7 +14,6 @@ export const expect = expectFixture;
 export class PlaywrightTestInfo {
     constructor(public page: Page,
                 public projectName: string,
-                public isMobile: boolean,
                 public requestContext: APIRequestContext) {
     }
 }
@@ -47,8 +46,12 @@ interface Services {
 
 
 export const TEST_USER = {
-    email: process.env.LOGIN_EMAIL || 'hasan.gunduz@useinsider.com',
-    password: process.env.LOGIN_USER_PASSWORD || 'Hasan.10'
+    get email() {
+        return process.env.LOGIN_EMAIL ?? (() => { throw new Error('LOGIN_EMAIL env is not set'); })();
+    },
+    get password() {
+        return process.env.LOGIN_USER_PASSWORD ?? (() => { throw new Error('LOGIN_USER_PASSWORD env is not set'); })();
+    },
 };
 
 export async function isPageClosed(page: Page) {
@@ -100,13 +103,13 @@ export const test = baseTest.extend<MyOptions & AllureTags & Pages & Services>({
         await client.end();
     },
     globalBeforeAfter: [globalBeforeAfter(), {auto: true}],
-    playwrightTestInfo: async ({page, request, isMobile}, use) => {
-        const playwrightTestInfo = new PlaywrightTestInfo(page, test.info().project.name, isMobile, request);
+    playwrightTestInfo: async ({page, request}, use) => {
+        const playwrightTestInfo = new PlaywrightTestInfo(page, test.info().project.name, request);
         await use(playwrightTestInfo);
     },
-    authenticatedPage: async ({page, isMobile, requireAuth}, use) => {
+    authenticatedPage: async ({page, requireAuth}, use) => {
         // if (requireAuth) {
-        //     const loginPage = new LoginPage(page, isMobile);
+        //     const loginPage = new LoginPage(page);
         //     await test.step('Performing authentication', async () => {
         //         const isLoggedIn = await loginPage.isLogin();
         //
@@ -125,16 +128,16 @@ export const test = baseTest.extend<MyOptions & AllureTags & Pages & Services>({
         await use();
     },
 
-    authService: async ({request, isMobile}, use) => {
-        const service = new AuthService(request, isMobile);
+    authService: async ({request}, use) => {
+        const service = new AuthService(request);
         await use(service);
     },
-    investmentService: async ({request, isMobile}, use) => {
-        const service = new PagesInvestmentService(request, isMobile);
+    investmentService: async ({request}, use) => {
+        const service = new PagesInvestmentService(request);
         await use(service);
     },
-    pagesRetirementBankingService: async ({request, isMobile}, use) => {
-        const service = new PagesRetirementBankingService(request, isMobile);
+    pagesRetirementBankingService: async ({request}, use) => {
+        const service = new PagesRetirementBankingService(request);
         await use(service);
     }
 });

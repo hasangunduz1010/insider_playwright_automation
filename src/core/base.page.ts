@@ -1,18 +1,13 @@
 import {Locator, Page, test} from '@playwright/test';
 import {expect} from '@core/fixture.base';
-import Helper from '@core/helper';
 import {attachment, parameter} from 'allure-js-commons';
 
 export default class BasePage {
 
-    isWeb: boolean;
-
     public constructor(
         readonly page: Page,
-        readonly isMobile: boolean | null = null,
         readonly parent: Locator = page.locator('html'),
     ) {
-        this.isWeb = !isMobile;
     }
 
     @Step('go to the page')
@@ -40,7 +35,11 @@ export default class BasePage {
 
         if (parentBox.x > childBox.x) return false;
         const parentEndX = parentBox.x + parentBox.width;
-        return parentEndX >= childBox.x;
+        if (parentEndX < childBox.x) return false;
+
+        if (parentBox.y > childBox.y) return false;
+        const parentEndY = parentBox.y + parentBox.height;
+        return parentEndY >= childBox.y;
     }
 
     @Step('get visible elements on component')

@@ -38,7 +38,7 @@ export default class ShopifyService extends BaseService {
     apiVersion: string,
     shopifyToken: string,
   ) {
-    super(context, false);
+    super(context);
     this.storeBaseUrl = `https://${storeName}.myshopify.com/admin/api/${apiVersion}/customers`;
     this.shopifyHeaders = {
       'Content-Type': 'application/json',

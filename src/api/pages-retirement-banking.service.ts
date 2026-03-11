@@ -13,8 +13,8 @@ export interface RetirementBankingListRequest {
 
 export default class PagesRetirementBankingService extends BaseService {
 
-    constructor(request: APIRequestContext, isMobile: boolean) {
-        super(request, isMobile);
+    constructor(request: APIRequestContext) {
+        super(request);
     }
 
     @Step('GET: /pages/retirementbanking/home')

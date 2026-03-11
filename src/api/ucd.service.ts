@@ -42,7 +42,7 @@ export default class UcdService extends BaseService {
     domain: string,
     apiKey: string,
   ) {
-    super(context, false);
+    super(context);
     this.baseUrl = `http://atrium.${domain}/api/contact/v1/profile`;
     this.partner = partner;
     this.apiKey = apiKey;

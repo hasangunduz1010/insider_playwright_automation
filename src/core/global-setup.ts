@@ -1,4 +1,4 @@
-import {chromium, FullConfig} from '@playwright/test';
+import {chromium, FullConfig, Page} from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import {URLS, SELECTORS, CREDENTIALS, TIMEOUTS, URL_PATTERNS} from '@data/visual/constants';
@@ -21,12 +21,12 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 
     if (!email || !password) {
         console.log('[global-setup] missing credentials, skipping login');
-        console.warn('⚠️  Email or password not found. StorageState will not be saved.');
+        console.warn('Email or password not found. StorageState will not be saved.');
         return;
     }
 
     let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined;
-    let page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newContext']>['newPage']> | undefined;
+    let page: Page | undefined;
 
     try {
         browser = await chromium.launch({
@@ -70,7 +70,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
         }
 
         if (!emailInput) {
-            console.warn(`⚠️  Login form not found during global setup. Current URL: ${page.url()}`);
+            console.warn(`Login form not found during global setup. Current URL: ${page.url()}`);
             return;
         }
 
@@ -79,7 +79,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
         await page.locator(SELECTORS.LOGIN.LOGIN_BUTTON).click();
 
         await page.waitForURL(
-            (url) => !URL_PATTERNS.isLoginURL(url.toString()),
+            (url: URL) => !URL_PATTERNS.isLoginURL(url.toString()),
             {timeout: TIMEOUTS.ELEMENT},
         );
 
@@ -91,8 +91,8 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
         console.log(`[global-setup] storageState saved: ${storageStatePath}`);
     } catch (error) {
         const err = error as Error;
-        console.warn('⚠️  Global setup error:', err.message);
-        console.warn('⚠️  Error All log:', err);
+        console.warn('Global setup error:', err.message);
+        console.warn('Error All log:', err);
     } finally {
         console.log('[global-setup] end');
         if (page) await page.close().catch(() => {});

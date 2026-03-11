@@ -4,15 +4,8 @@ import {config} from 'dotenv';
 import {resolve} from 'path';
 
 config({path: resolve(__dirname, '.env')});
-config({path: resolve(__dirname, '.env.' + process.env.ENV)});
-
-const dotenv = require('dotenv');
-const path = require('path');
-
-// Ana .env + ENV'e özel .env dosyalarını yükle
-dotenv.config({ path: path.join(__dirname, '.env') });
 if (process.env.ENV) {
-    dotenv.config({ path: path.join(__dirname, `.env.${process.env.ENV}`) });
+    config({path: resolve(__dirname, `.env.${process.env.ENV}`)});
 }
 
 const insiderAutomation = 'InsiderAutomation/1.0 (playwright)';
@@ -24,6 +17,7 @@ const userAgent = {
 
 export default defineConfig({
     testDir: './tests',
+    globalSetup: './src/core/global-setup.ts',
     //snapshotPathTemplate: '',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,

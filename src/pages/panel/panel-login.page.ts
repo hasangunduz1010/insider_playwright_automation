@@ -7,8 +7,8 @@ export default class PanelLoginPage extends BasePage {
     readonly passwordInput: Locator;
     readonly loginButton: Locator;
 
-    constructor(page: Page, isMobile: boolean) {
-        super(page, isMobile);
+    constructor(page: Page) {
+        super(page);
         this.emailInput = page.locator(SELECTORS.LOGIN.EMAIL_INPUT);
         this.passwordInput = page.locator(SELECTORS.LOGIN.PASSWORD_INPUT);
         this.loginButton = page.locator(SELECTORS.LOGIN.LOGIN_BUTTON);

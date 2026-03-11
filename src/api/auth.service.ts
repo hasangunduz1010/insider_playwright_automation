@@ -4,8 +4,8 @@ import {APIRequestContext} from "@playwright/test";
 
 export default class AuthService extends BaseService {
 
-    constructor(context: APIRequestContext, isMobile: boolean) {
-        super(context, isMobile);
+    constructor(context: APIRequestContext) {
+        super(context);
     }
 
     @Step('PUT: /auth-services/api/communicationpermits/{userId}')

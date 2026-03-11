@@ -7,8 +7,8 @@ export default class BaseService {
 
     readonly device: string;
 
-    constructor(readonly context: APIRequestContext, readonly isMobile: boolean) {
-        this.device = isMobile ? '2' : '1';
+    constructor(readonly context: APIRequestContext) {
+        this.device = '1';
     }
 }
 

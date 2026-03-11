@@ -7,8 +7,8 @@ export class PanelAuth {
     private readonly loginPage: PanelLoginPage;
     private readonly partnerSelectPage: PartnerSelectPage;
 
-    constructor(private readonly page: Page, private readonly isMobile: boolean = false) {
-        this.loginPage = new PanelLoginPage(page, isMobile);
+    constructor(private readonly page: Page) {
+        this.loginPage = new PanelLoginPage(page);
         this.partnerSelectPage = new PartnerSelectPage(page);
     }
 

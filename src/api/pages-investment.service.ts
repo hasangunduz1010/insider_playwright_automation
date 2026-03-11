@@ -4,8 +4,8 @@ import {Step} from '@core/base.page';
 import {ExchangeType} from '@enums/common.enum';
 
 export default class PagesInvestmentService extends BaseService {
-    constructor(request: APIRequestContext, isMobile: boolean) {
-        super(request, isMobile);
+    constructor(request: APIRequestContext) {
+        super(request);
     }
 
     @Step('Get Home')

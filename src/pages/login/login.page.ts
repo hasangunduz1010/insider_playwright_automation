@@ -12,8 +12,8 @@ export default class LoginPage extends BasePage {
 
     private readonly phoneNumber: string = "5432240523";
 
-    constructor(page: Page, isMobile: boolean) {
-        super(page, isMobile)
+    constructor(page: Page) {
+        super(page)
         this.emailLogin = page.locator('#email-login');
         this.passwordLogin = page.locator('#password-login');
         this.loginButton = page.locator('#signin-btn');
